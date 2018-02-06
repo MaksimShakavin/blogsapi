@@ -1,53 +1,38 @@
-import low from 'lowdb'
-import FileSync from 'lowdb/adapters/FileAsync'
-import path from 'path'
+import BlogsModel from './blogpost'
+import {ObjectId} from 'mongoose'
+import logger from "../utils/logger";
 
 class Blogs {
 
     constructor() {
-        const adapter = new FileSync(path.join(__dirname, '../data/blogs.json'));
-        this.db = low(adapter);
+
     }
 
     getAll() {
-        return this.db.then(db => db.get('blogs')
-            .value()
-        );
+        return BlogsModel.find();
     }
 
     get(id) {
-        return this.db.then(db => db.get('blogs')
-            .find({id:id})
-            .value()
-        );
+        return BlogsModel.findById(id);
     }
 
     remove(id) {
-        return this.db.then(db => db.get('blogs')
-            .remove({id: id})
-            .write()
-        );
+        return BlogsModel.remove({id:id});
     }
 
     add(blogpost) {
-        return this.db.then(db => db.get('blogs')
-            .push(blogpost)
-            .last()
-            .assign({ id: Date.now().toString() })
-            .write()
-        );
+        const blogspostModel = new BlogsModel(blogpost);
+        return blogspostModel.save();
     }
 
     update(blogpost) {
-        return this.db.then(db => db.get('blogs')
-            .find({id: blogpost.id})
-            .assign(blogpost)
-            .write()
-        )
+        return BlogsModel.findById(blogpost.id).then(blogModel => {
+            console.log(blogpost);
+            blogModel.title = blogpost.title;
+            blogModel.description = blogpost.description;
+            return blogModel.save();
+        })
     }
-
-
-
 
 }
 

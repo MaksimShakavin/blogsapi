@@ -1,5 +1,6 @@
 import express from 'express';
 import Blogs from '../model/blogs.model'
+import logger from "../utils/logger";
 
 const router = express.Router();
 
@@ -10,7 +11,8 @@ router.get('/', (req,res) => {
 
 router.get('/:id', (req,res) => {
     Blogs.get(req.params.id)
-        .then(post => post ? res.send(post) : res.send(404));
+        .then(post =>  res.send(post) )
+        .catch(err => logger.error(err));
 });
 
 router.delete('/:id', (req,res) => {
